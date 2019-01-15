@@ -346,7 +346,7 @@ void CLMiner::workLoop()
                 continue;
             }
 
-            if (current.header != w.header)
+            if ((current.header != w.header) || (current.boundary != w.boundary))
             {
 
                 if (current.epoch != w.epoch)

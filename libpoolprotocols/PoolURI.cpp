@@ -56,6 +56,7 @@ static std::map<std::string, SchemeAttributes> s_schemes = {
     {"stratum3+ssl", {ProtocolFamily::STRATUM, SecureLevel::TLS12, 3}},
     {"http", {ProtocolFamily::GETWORK, SecureLevel::NONE, 0}},
     {"getwork", {ProtocolFamily::GETWORK, SecureLevel::NONE, 0}},
+    {"zil", {ProtocolFamily::GETWORK, SecureLevel::NONE, 1}},
 
     /*
     Any TCP scheme has, at the moment, only STRATUM protocol thus

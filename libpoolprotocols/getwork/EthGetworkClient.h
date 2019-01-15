@@ -19,6 +19,11 @@ using namespace eth;
 class EthGetworkClient : public PoolClient
 {
 public:
+    enum GetworkProtocol
+    {
+        ETH = 0,
+        ZIL = 1
+    };
     EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod);
     ~EthGetworkClient();
 
@@ -27,6 +32,8 @@ public:
 
     void submitHashrate(uint64_t const& rate, string const& id) override;
     void submitSolution(const Solution& solution) override;
+
+    bool isZILMode() { return m_conn && (m_conn->Version() == GetworkProtocol::ZIL); }
 
 private:
     unsigned m_farmRecheckPeriod = 500;  // In milliseconds
@@ -45,6 +52,7 @@ private:
 
     WorkPackage m_current;
 
+    std::atomic<bool> m_zil_pow_running = {false};
     std::atomic<bool> m_connecting = {false};  // Whether or not socket is on first try connect
     std::atomic<bool> m_txPending = {false};  // Whether or not an async socket operation is pending
     boost::lockfree::queue<std::string*> m_txQueue;

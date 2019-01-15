@@ -421,20 +421,57 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
             {
                 Json::Value JPrm = JRes.get("result", Json::Value::null);
                 WorkPackage newWp;
-                
+                unsigned zilSecsToNextPoW = 0;
+
                 newWp.header = h256(JPrm.get(Json::Value::ArrayIndex(0), "").asString());
                 newWp.seed = h256(JPrm.get(Json::Value::ArrayIndex(1), "").asString());
                 newWp.boundary = h256(JPrm.get(Json::Value::ArrayIndex(2), "").asString());
-                newWp.job = newWp.header.hex();
-                if (m_current.header != newWp.header)
+                if (isZILMode())
                 {
-                    m_current = newWp;
-                    m_current_tstamp = std::chrono::steady_clock::now();
-
-                    if (m_onWorkReceived)
-                        m_onWorkReceived(m_current);
+                    // handle ZIL extra parameters
+                    m_zil_pow_running = JPrm.get(Json::Value::ArrayIndex(3), false).asBool();
+                    zilSecsToNextPoW = JPrm.get(Json::Value::ArrayIndex(4), 0).asUInt();
                 }
-                m_getwork_timer.expires_from_now(boost::posix_time::milliseconds(m_farmRecheckPeriod));
+
+                newWp.job = newWp.header.hex();
+                if (m_current.header != newWp.header || m_current.boundary != newWp.boundary)
+                {
+                    // if not ZIL mode or ZIL PoW is running, send work to pool
+                    if (!isZILMode() || m_zil_pow_running)
+                    {
+                        m_current = newWp;
+                        m_current_tstamp = std::chrono::steady_clock::now();
+
+                        if (m_onWorkReceived)
+                        {
+                            m_onWorkReceived(m_current);
+                        }
+                    }
+                }
+
+                // handle sleep time
+                auto sleep_ms = m_farmRecheckPeriod;
+                if (isZILMode() && !m_zil_pow_running)
+                {
+                    // sleep till next PoW coming
+                    sleep_ms = zilSecsToNextPoW * 1000 * 9 / 10;
+                    sleep_ms = std::max(sleep_ms, m_farmRecheckPeriod);
+
+                    if (sleep_ms > m_farmRecheckPeriod)
+                    {
+                        cnote << "ZIL PoW is not running, next round " << zilSecsToNextPoW
+                              << " seconds later.";
+                        cnote << "sleep for " << sleep_ms / 1000.0 << " seconds.";
+                        // pause workers
+                        if (m_onWorkReceived)
+                        {
+                            m_current.header = h256();
+                            m_onWorkReceived(m_current);
+                        }
+                    }
+                }
+
+                m_getwork_timer.expires_from_now(boost::posix_time::milliseconds(sleep_ms));
                 m_getwork_timer.async_wait(
                     m_io_strand.wrap(boost::bind(&EthGetworkClient::getwork_timer_elapsed, this,
                         boost::asio::placeholders::error)));
@@ -458,6 +495,16 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
         const unsigned miner_index = _id - 40;
         if (_isSuccess)
         {
+            if (isZILMode())
+            {
+                // try to get new work when success
+                m_getwork_timer.cancel();
+                m_getwork_timer.expires_from_now(boost::posix_time::milliseconds(500));
+                m_getwork_timer.async_wait(
+                    m_io_strand.wrap(boost::bind(&EthGetworkClient::getwork_timer_elapsed, this,
+                        boost::asio::placeholders::error)));
+            }
+
             if (m_onSolutionAccepted)
                 m_onSolutionAccepted(_delay, miner_index, false);
         }
@@ -532,7 +579,16 @@ void EthGetworkClient::submitHashrate(uint64_t const& rate, string const& id)
         jReq["method"] = "eth_submitHashrate";
         jReq["params"] = Json::Value(Json::arrayValue);
         jReq["params"].append(toHex(rate, HexPrefix::Add));  // Already expressed as hex
-        jReq["params"].append(id);                           // Already prefixed by 0x
+        if (isZILMode())
+        {
+            // add extra parameters for ZIL
+            jReq["params"].append(m_conn->User());
+            jReq["params"].append(m_conn->Workername());
+        }
+        else
+        {
+            jReq["params"].append(id);  // Already prefixed by 0x
+        }
         send(jReq);
     }
 
@@ -540,6 +596,16 @@ void EthGetworkClient::submitHashrate(uint64_t const& rate, string const& id)
 
 void EthGetworkClient::submitSolution(const Solution& solution)
 {
+    if (isZILMode() && !m_zil_pow_running)
+    {
+        // send dummy work to farm to stop current work
+        if (m_onWorkReceived)
+        {
+            WorkPackage pauseWP = solution.work;
+            pauseWP.header = h256();
+            m_onWorkReceived(pauseWP);
+        }
+    }
 
     if (m_session)
     {
@@ -555,6 +621,13 @@ void EthGetworkClient::submitSolution(const Solution& solution)
         jReq["params"].append("0x" + nonceHex);
         jReq["params"].append("0x" + solution.work.header.hex());
         jReq["params"].append("0x" + solution.mixHash.hex());
+        if (isZILMode())
+        {
+            // add extra parameters for ZIL
+            jReq["params"].append("0x" + solution.work.boundary.hex());
+            jReq["params"].append(m_conn->User());  // user should be zil wallet addr
+            jReq["params"].append(m_conn->Workername());
+        }
         send(jReq);
     }
 
