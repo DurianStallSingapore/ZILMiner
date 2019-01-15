@@ -194,6 +194,18 @@ void CUDAMiner::workLoop()
                 continue;
             }
 
+            if ((current.header != w.header) || (current.boundary != w.boundary) ||
+                (current.startNonce != w.startNonce))
+            {
+                // reset submit count when get a new work
+                m_submitted_count = 0;
+            }
+
+            if ((m_maxSubmitCount >= 0) && (m_submitted_count >= m_maxSubmitCount))
+            {
+                continue;
+            }
+
             // Epoch change ?
             if (current.epoch != w.epoch)
             {
@@ -344,6 +356,13 @@ void CUDAMiner::search(
         for (current_index = 0; current_index < m_settings.streams;
              current_index++, start_nonce += m_batch_size)
         {
+            // done if we submitted enghou solutions
+            if ((m_maxSubmitCount >= 0) && (m_submitted_count >= m_maxSubmitCount))
+            {
+                done = true;
+                break;
+            }
+
             // Each pass of this loop will wait for a stream to exit,
             // save any found solutions, then restart the stream
             // on the next group of nonces.
@@ -381,6 +400,11 @@ void CUDAMiner::search(
                             << toHex(sol.nonce, HexPrefix::Add) << EthReset;
 
                     Farm::f().submitProof(sol);
+                    if ((m_maxSubmitCount >= 0) && (++m_submitted_count >= m_maxSubmitCount))
+                    {
+                        done = true;
+                        break;
+                    }
                 }
             }
 

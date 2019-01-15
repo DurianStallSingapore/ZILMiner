@@ -62,6 +62,8 @@ private:
     const uint32_t m_batch_size;
     const uint32_t m_streams_batch_size;
 
+    int m_submitted_count = 0;
+
     uint64_t m_allocated_memory_dag = 0; // dag_size is a uint64_t in EpochContext struct
     size_t m_allocated_memory_light_cache = 0;
 };

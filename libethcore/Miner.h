@@ -420,6 +420,8 @@ public:
 
     void TriggerHashRateUpdate() noexcept;
 
+    void setMaxSubmitCount(int count) { m_maxSubmitCount = count; }
+
 protected:
     /**
      * @brief Initializes miner's device.
@@ -462,6 +464,11 @@ protected:
     mutable boost::mutex x_pause;
     boost::condition_variable m_new_work_signal;
     boost::condition_variable m_dag_loaded_signal;
+
+    /**
+     * @brief -1 allow all solutions
+     */
+    int m_maxSubmitCount = -1;
 
 private:
     bitset<MinerPauseEnum::Pause_MAX> m_pauseFlags;

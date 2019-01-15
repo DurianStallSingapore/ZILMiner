@@ -302,7 +302,11 @@ bool Farm::start()
     else
     {
         for (auto const& miner : m_miners)
+        {
+            miner->setMaxSubmitCount(m_Settings.maxSubmitCount);
             miner->startWorking();
+        }
+
         m_isMining.store(true, std::memory_order_relaxed);
     }
 

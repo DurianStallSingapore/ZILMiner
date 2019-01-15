@@ -292,6 +292,7 @@ void CLMiner::workLoop()
     uint32_t zerox3[3] = {0, 0, 0};
 
     uint64_t startNonce = 0;
+    int submitted_count = 0;
 
     // The work package currently processed by GPU.
     WorkPackage current;
@@ -379,6 +380,8 @@ void CLMiner::workLoop()
                 m_searchKernel.setArg(3, m_dagItems);
                 m_searchKernel.setArg(5, target);
 
+                submitted_count = 0;  // got new work, clear submited count
+
 #ifdef DEV_BUILD
                 if (g_logOptions & LOG_SWITCH)
                     cllog << "Switch time: "
@@ -387,6 +390,11 @@ void CLMiner::workLoop()
                                  .count()
                           << " us.";
 #endif
+            }
+
+            if ((m_maxSubmitCount >= 0) && (submitted_count >= m_maxSubmitCount))
+            {
+                continue;
             }
 
             // Run the kernel.
@@ -413,6 +421,10 @@ void CLMiner::workLoop()
 
                         Farm::f().submitProof(sol);
 
+                        if ((m_maxSubmitCount >= 0) && (++submitted_count >= m_maxSubmitCount))
+                        {
+                            break;
+                        }
                     }
                 }
             }

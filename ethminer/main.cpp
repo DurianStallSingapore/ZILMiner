@@ -263,6 +263,9 @@ public:
         app.add_option("--response-timeout", m_PoolSettings.noResponseTimeout, "", true)
             ->check(CLI::Range(2, 999));
 
+        app.add_option("--max-submit", m_FarmSettings.maxSubmitCount, "", true)
+            ->check(CLI::Range(0, 999));
+
         app.add_flag("-R,--report-hashrate,--report-hr", m_PoolSettings.reportHashrate, "");
 
         app.add_option("--display-interval", m_cliDisplayInterval, "", true)
@@ -1003,6 +1006,9 @@ public:
                  << "    --response-timeout  INT[2 .. 999] Default = 2" << endl
                  << "                        If no response from pool to a stratum message " << endl
                  << "                        after this amount of time the connection is dropped"
+                 << endl
+                 << "    --max-submit        INT[0 .. 999] Default = -1" << endl
+                 << "                        Max submissions allowed for a worker each work "
                  << endl
                  << "    -R,--report-hr      FLAG Notify pool of effective hashing rate" << endl
                  << "    --HWMON             INT[0 .. 2] Default = 0" << endl
