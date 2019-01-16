@@ -13,6 +13,8 @@ if(MSVC)
 	target_sources(${EXECUTABLE} PRIVATE ethminer.rc)
 endif()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "zilminer")
+
 hunter_add_package(CLI11)
 find_package(CLI11 CONFIG REQUIRED)
 
