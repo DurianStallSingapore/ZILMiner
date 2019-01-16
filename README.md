@@ -58,7 +58,7 @@ zilminer --max-submit=1 --farm-recheck 10000 --work-timeout=7200 --farm-retries=
 > Please change the *wallet_address*, *worker_name*, *zil_node_ip*, and *get_work_port* accodingly.
 
 * For `wallet_address`: You can use the [Zilliqa Wallet](https://wallet.zilliqa.com/) to create a new keypair and a Zilliqa address.
-* For `*worker_name` You can key in any abitrary worker name you desire.
+* For `worker_name` You can key in any abitrary worker name you desire.
 * For `zil_node_ip`: Please key in the IP address of the Zilliqa node.
 * For `get_work_port`: Please key in the port used in `GETWORK_SERVER_PORT`. Default is `4202`.
 
