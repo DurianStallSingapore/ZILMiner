@@ -291,6 +291,7 @@ bool Farm::start()
             if (minerTelemetry.prefix.empty())
                 continue;
             m_telemetry.miners.push_back(minerTelemetry);
+            m_miners.back()->setMaxSubmitCount(m_Settings.maxSubmitCount);
             m_miners.back()->startWorking();
         }
 
