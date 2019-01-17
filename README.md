@@ -53,7 +53,7 @@ zilminer --help
 Key in the following command in your command prompt:
 ```sh
 zilminer --max-submit=1 --farm-recheck 10000 --work-timeout=7200 --farm-retries=10 --retry-delay=10 \
-         -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
+         --ergodicity=2 -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
 ```
 > Please change the *wallet_address*, *worker_name*, *zil_node_ip*, and *get_work_port* accodingly.
 
