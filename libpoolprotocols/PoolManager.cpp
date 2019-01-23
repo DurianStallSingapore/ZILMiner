@@ -382,6 +382,8 @@ void PoolManager::rotateConnect()
     if (p_client && p_client->isConnected())
         return;
 
+    dev::setThreadName("zilminer");
+
     // Check we're within bounds
     if (m_activeConnectionIdx >= m_Settings.connections.size())
         m_activeConnectionIdx = 0;
