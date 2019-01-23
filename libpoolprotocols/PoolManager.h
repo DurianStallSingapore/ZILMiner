@@ -33,6 +33,8 @@ struct PoolSettings
     unsigned connectionMaxRetries = 3;  // Max number of connection retries
     unsigned delayBeforeRetry = 0;      // Delay seconds before connect retry
     unsigned benchmarkBlock = 0;        // Block number used by SimulateClient to test performances
+    std::string sysCallbackPoWStart = "";  // system command to call when PoW start
+    std::string sysCallbackPoWEnd = "";    // system command to call when PoW end
 };
 
 class PoolManager
@@ -64,6 +66,8 @@ private:
     void showMiningAt();
 
     void setActiveConnectionCommon(unsigned int idx);
+
+    boost::asio::io_context m_ios;
 
     PoolSettings m_Settings;
 
