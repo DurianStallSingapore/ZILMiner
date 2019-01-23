@@ -207,7 +207,7 @@ void CUDAMiner::workLoop()
             }
 
             // Epoch change ?
-            if (current.epoch != w.epoch)
+            if (current.epoch != w.epoch || m_allocated_memory_dag == 0)
             {
                 if (!initEpoch())
                     break;  // This will simply exit the thread
@@ -435,4 +435,15 @@ void CUDAMiner::search(
                        .count()
                 << " ms.";
 #endif
+}
+
+
+void CUDAMiner::clearDAG()
+{
+    cudalog << "Clear DAG Buffer";
+    CUDA_SAFE_CALL(cudaSetDevice(m_deviceDescriptor.cuDeviceIndex));
+    CUDA_SAFE_CALL(cudaDeviceReset());
+
+    m_allocated_memory_dag = 0;
+    m_allocated_memory_light_cache = 0;
 }

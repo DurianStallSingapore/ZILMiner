@@ -422,6 +422,7 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 Json::Value JPrm = JRes.get("result", Json::Value::null);
                 WorkPackage newWp;
                 unsigned zilSecsToNextPoW = 0;
+                bool zilPowRuning = false;
 
                 newWp.header = h256(JPrm.get(Json::Value::ArrayIndex(0), "").asString());
                 newWp.seed = h256(JPrm.get(Json::Value::ArrayIndex(1), "").asString());
@@ -429,8 +430,19 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 if (isZILMode())
                 {
                     // handle ZIL extra parameters
-                    m_zil_pow_running = JPrm.get(Json::Value::ArrayIndex(3), false).asBool();
+                    zilPowRuning = JPrm.get(Json::Value::ArrayIndex(3), false).asBool();
                     zilSecsToNextPoW = JPrm.get(Json::Value::ArrayIndex(4), 0).asUInt();
+
+                    // check if it's the first work in PoW window
+                    if ((zilPowRuning || zilSecsToNextPoW == 0) && !m_zil_pow_running)
+                    {
+                        m_zil_pow_running = true;
+                        cnote << "ZIL PoW Window Start";
+                        if (m_onPoWStart)
+                        {
+                            m_onPoWStart();
+                        }
+                    }
                 }
 
                 newWp.job = newWp.header.hex();
@@ -451,7 +463,7 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
 
                 // handle sleep time
                 auto sleep_ms = m_farmRecheckPeriod;
-                if (isZILMode() && !m_zil_pow_running)
+                if (isZILMode() && !zilPowRuning)
                 {
                     // sleep till next PoW coming
                     sleep_ms = zilSecsToNextPoW * 1000 * 9 / 10;
@@ -467,6 +479,17 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                         {
                             m_current.header = h256();
                             m_onWorkReceived(m_current);
+                        }
+
+                        bool expected = true;
+                        if (m_zil_pow_running.compare_exchange_strong(expected, false))
+                        {
+                            cnote << "ZIL PoW Window End";
+                            // call end callback
+                            if (m_onPoWEnd)
+                            {
+                                m_onPoWEnd();
+                            }
                         }
                     }
                 }

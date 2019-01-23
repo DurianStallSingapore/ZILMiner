@@ -74,12 +74,12 @@ before_install:
 script: |
     cmake -DHUNTER_JOBS_NUMBER=4 -DETHASHCUDA=$CUDA -DETHASHCL=ON -DAPICORE=ON -H. -Bbuild
     cmake --build build --target package -- -j4
-    build/ethminer/ethminer --help
-    if [ "$TRAVIS_OS_NAME" = linux ]; then ldd -v build/ethminer/ethminer; fi
-    if [ "$TRAVIS_OS_NAME" = osx ]; then otool -L build/ethminer/ethminer; fi
+    build/ethminer/zilminer --help
+    if [ "$TRAVIS_OS_NAME" = linux ]; then ldd -v build/ethminer/zilminer; fi
+    if [ "$TRAVIS_OS_NAME" = osx ]; then otool -L build/ethminer/zilminer; fi
     . build/ethminer/buildinfo.sh
     mkdir package
-    mv build/ethminer.tar.gz package/$PROJECT_NAME-$PROJECT_VERSION-cuda-$CUDA_VERSION-$SYSTEM_NAME-$SYSTEM_PROCESSOR.tar.gz
+    mv build/zilminer.tar.gz package/zilminer-$PROJECT_VERSION-cuda-$CUDA_VERSION-$SYSTEM_NAME-$SYSTEM_PROCESSOR.tar.gz
 
 
 deploy:

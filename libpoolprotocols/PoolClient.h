@@ -95,12 +95,15 @@ public:
     using Disconnected = function<void()>;
     using Connected = function<void()>;
     using WorkReceived = function<void(WorkPackage const&)>;
+    using PoWEvent = function<void()>;
 
     void onSolutionAccepted(SolutionAccepted const& _handler) { m_onSolutionAccepted = _handler; }
     void onSolutionRejected(SolutionRejected const& _handler) { m_onSolutionRejected = _handler; }
     void onDisconnected(Disconnected const& _handler) { m_onDisconnected = _handler; }
     void onConnected(Connected const& _handler) { m_onConnected = _handler; }
     void onWorkReceived(WorkReceived const& _handler) { m_onWorkReceived = _handler; }
+    void onPoWStart(PoWEvent const& _handler) { m_onPoWStart = _handler; }
+    void onPowEnd(PoWEvent const& _handler) { m_onPoWEnd = _handler; }
 
 protected:
     unique_ptr<Session> m_session = nullptr;
@@ -116,6 +119,8 @@ protected:
     Disconnected m_onDisconnected;
     Connected m_onConnected;
     WorkReceived m_onWorkReceived;
+    PoWEvent m_onPoWStart;
+    PoWEvent m_onPoWEnd;
 };
 }  // namespace eth
 }  // namespace dev

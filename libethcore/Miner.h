@@ -422,6 +422,8 @@ public:
 
     void setMaxSubmitCount(int count) { m_maxSubmitCount = count; }
 
+    virtual void clearDAG() = 0;
+
 protected:
     /**
      * @brief Initializes miner's device.

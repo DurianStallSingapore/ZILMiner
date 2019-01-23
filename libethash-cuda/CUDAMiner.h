@@ -41,6 +41,8 @@ public:
     void search(
         uint8_t const* header, uint64_t target, uint64_t _startN, const dev::eth::WorkPackage& w);
 
+    void clearDAG() override;
+
 protected:
     bool initDevice() override;
 

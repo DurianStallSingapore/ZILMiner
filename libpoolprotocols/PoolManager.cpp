@@ -220,6 +220,46 @@ void PoolManager::setClientHandlers()
             cwarn << EthRed "**Rejected" EthReset << ss.str();
             Farm::f().accountSolution(_minerIdx, SolutionAccountingEnum::Rejected);
         });
+
+    p_client->onPoWStart([&]() {
+        if (m_Settings.sysCallbackPoWStart.size() == 0)
+        {
+            return;
+        }
+        cnote << "[Start] Call system command: " << m_Settings.sysCallbackPoWStart;
+        boost::process::async_system(
+            m_ios,
+            [&](boost::system::error_code error, int i) {
+                cnote << "command exit " << i << " ec " << error;
+            },
+            m_Settings.sysCallbackPoWStart);
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        if (Farm::f().paused())
+        {
+            Farm::f().resume();
+        }
+    });
+
+    p_client->onPowEnd([&]() {
+        if (m_Settings.clearDAGPoWEnd)
+        {
+            Farm::f().pause();
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            Farm::f().clearMinerDAG();
+        }
+
+        if (m_Settings.sysCallbackPoWEnd.size() == 0)
+        {
+            return;
+        }
+        cnote << "[End] Call system command: " << m_Settings.sysCallbackPoWEnd;
+        boost::process::async_system(
+            m_ios,
+            [&](boost::system::error_code error, int i) {
+                cnote << "command exit " << i << " ec " << error;
+            },
+            m_Settings.sysCallbackPoWEnd);
+    });
 }
 
 void PoolManager::stop()
@@ -381,6 +421,8 @@ void PoolManager::rotateConnect()
 {
     if (p_client && p_client->isConnected())
         return;
+
+    dev::setThreadName("zilminer");
 
     // Check we're within bounds
     if (m_activeConnectionIdx >= m_Settings.connections.size())

@@ -51,7 +51,7 @@ namespace eth
 struct FarmSettings
 {
     unsigned dagLoadMode = 0;  // 0 = Parallel; 1 = Serialized
-    bool noEval = false;       // Whether or not to re-evaluate solutions
+    bool noEval = true;       // Whether or not to re-evaluate solutions
     unsigned hwMon = 0;        // 0 - No monitor; 1 - Temp and Fan; 2 - Temp Fan Power
     unsigned ergodicity = 0;   // 0=default, 1=per session, 2=per job
     unsigned tempStart = 40;   // Temperature threshold to restart mining (if paused)
@@ -243,6 +243,12 @@ public:
      * @param _s The solution.
      */
     void submitProof(Solution const& _s) override;
+
+    void clearMinerDAG()
+    {
+        for (auto const& miner : m_miners)
+            miner->clearDAG();
+    }
 
 private:
     std::atomic<bool> m_paused = {false};
