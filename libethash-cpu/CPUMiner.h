@@ -38,6 +38,8 @@ public:
 
     void search(const dev::eth::WorkPackage& w);
 
+    void clearDAG() override{};
+
 protected:
     bool initDevice() override;
     bool initEpoch_internal() override;

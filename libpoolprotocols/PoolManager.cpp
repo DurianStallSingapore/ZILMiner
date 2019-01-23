@@ -234,9 +234,20 @@ void PoolManager::setClientHandlers()
             },
             m_Settings.sysCallbackPoWStart);
         std::this_thread::sleep_for(std::chrono::seconds(3));
+        if (Farm::f().paused())
+        {
+            Farm::f().resume();
+        }
     });
 
     p_client->onPowEnd([&]() {
+        if (m_Settings.clearDAGPoWEnd)
+        {
+            Farm::f().pause();
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            Farm::f().clearMinerDAG();
+        }
+
         if (m_Settings.sysCallbackPoWEnd.size() == 0)
         {
             return;

@@ -244,6 +244,12 @@ public:
      */
     void submitProof(Solution const& _s) override;
 
+    void clearMinerDAG()
+    {
+        for (auto const& miner : m_miners)
+            miner->clearDAG();
+    }
+
 private:
     std::atomic<bool> m_paused = {false};
 

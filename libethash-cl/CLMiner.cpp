@@ -349,8 +349,7 @@ void CLMiner::workLoop()
 
             if ((current.header != w.header) || (current.boundary != w.boundary))
             {
-
-                if (current.epoch != w.epoch)
+                if (current.epoch != w.epoch || !m_dag_inited)
                 {
                     m_abortqueue.clear();
 
@@ -703,6 +702,8 @@ bool CLMiner::initEpoch_internal()
     auto startInit = std::chrono::steady_clock::now();
     size_t RequiredMemory = (m_epochContext.dagSize + m_epochContext.lightSize);
 
+    m_dag_inited = false;
+
     // Release the pause flag if any
     resume(MinerPauseEnum::PauseDueToInsufficientMemory);
     resume(MinerPauseEnum::PauseDueToInitEpochError);
@@ -932,5 +933,16 @@ bool CLMiner::initEpoch_internal()
         pause(MinerPauseEnum::PauseDueToInitEpochError);
         return false;
     }
+    m_dag_inited = true;
     return true;
+}
+
+void CLMiner::clearDAG()
+{
+    m_dag_inited = false;
+
+    cllog << "Clear DAG Buffer";
+    m_dag.clear();
+    m_light.clear();
+    m_header.clear();
 }

@@ -35,6 +35,7 @@ struct PoolSettings
     unsigned benchmarkBlock = 0;        // Block number used by SimulateClient to test performances
     std::string sysCallbackPoWStart = "";  // system command to call when PoW start
     std::string sysCallbackPoWEnd = "";    // system command to call when PoW end
+    bool clearDAGPoWEnd = false;           // release GPU memory when PoW end
 };
 
 class PoolManager

@@ -49,6 +49,8 @@ public:
 
     static void enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollection);
 
+    void clearDAG() override;
+
 protected:
     bool initDevice() override;
 
@@ -76,10 +78,12 @@ private:
         m_dag.clear();
         m_light.clear();
         m_header.clear();
-        m_searchBuffer.clear();
         m_queue.clear();
-        m_context.clear();
         m_abortqueue.clear();
+        m_searchBuffer.clear();
+        m_context.clear();
+
+        m_dag_inited = false;
     }
 
     CLSettings m_settings;
@@ -87,6 +91,7 @@ private:
     unsigned m_dagItems = 0;
     uint64_t m_lastNonce = 0;
 
+    std::atomic<bool> m_dag_inited = {false};
 };
 
 }  // namespace eth
