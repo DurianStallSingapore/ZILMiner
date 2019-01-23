@@ -297,6 +297,7 @@ private:
     // before it consumes the whole 2^32 segment
     uint64_t m_nonce_scrambler;
     unsigned int m_nonce_segment_with = 32;
+    std::atomic<int> m_submitted_count = {0};
 
     // Wrappers for hardware monitoring libraries and their mappers
     wrap_nvml_handle* nvmlh = nullptr;

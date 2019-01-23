@@ -338,7 +338,7 @@ void CLMiner::workLoop()
 
             // Wait for work or 3 seconds (whichever the first)
             const WorkPackage w = work();
-            if (!w)
+            if (!w || paused())
             {
                 boost::system_time const timeout =
                     boost::get_system_time() + boost::posix_time::seconds(3);

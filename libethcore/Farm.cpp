@@ -199,6 +199,12 @@ void Farm::shuffle()
 
 void Farm::setWork(WorkPackage const& _newWp)
 {
+    if (paused())
+    {
+        resume();
+    }
+    m_submitted_count = 0;
+
     // Set work to each miner giving it's own starting nonce
     Guard l(x_minerWork);
 
@@ -490,6 +496,11 @@ void Farm::setTStartTStop(unsigned tstart, unsigned tstop)
 
 void Farm::submitProof(Solution const& _s)
 {
+    if ((m_Settings.maxSubmitCount >= 0) && (m_submitted_count++ >= m_Settings.maxSubmitCount))
+    {
+        pause();
+        return;
+    }
     g_io_service.post(m_io_strand.wrap(boost::bind(&Farm::submitProofAsync, this, _s)));
 }
 
@@ -500,6 +511,7 @@ void Farm::submitProofAsync(Solution const& _s)
         Result r = EthashAux::eval(_s.work.epoch, _s.work.header, _s.nonce);
         if (r.value > _s.work.boundary)
         {
+            m_submitted_count = 0;
             accountSolution(_s.midx, SolutionAccountingEnum::Failed);
             cwarn << "GPU " << _s.midx
                   << " gave incorrect result. Lower overclocking values if it happens frequently.";
