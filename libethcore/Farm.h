@@ -53,10 +53,10 @@ struct FarmSettings
     unsigned dagLoadMode = 0;  // 0 = Parallel; 1 = Serialized
     bool noEval = true;       // Whether or not to re-evaluate solutions
     unsigned hwMon = 0;        // 0 - No monitor; 1 - Temp and Fan; 2 - Temp Fan Power
-    unsigned ergodicity = 0;   // 0=default, 1=per session, 2=per job
+    unsigned ergodicity = 2;   // 0=default, 1=per session, 2=per job
     unsigned tempStart = 40;   // Temperature threshold to restart mining (if paused)
     unsigned tempStop = 0;     // Temperature threshold to pause mining (overheating)
-    int maxSubmitCount = -1;   // Max submissions allowed for a worker each work
+    int maxSubmitCount = 1;    // Max submissions allowed for a worker each work
 };
 
 /**

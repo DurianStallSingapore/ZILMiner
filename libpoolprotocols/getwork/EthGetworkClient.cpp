@@ -593,6 +593,12 @@ void EthGetworkClient::send(std::string const& sReq)
 
 void EthGetworkClient::submitHashrate(uint64_t const& rate, string const& id)
 {
+    if (isZILMode() && !m_zil_pow_running)
+    {
+        // do not report hashrate when pow is not runing
+        return;
+    }
+
     // No need to check for authorization
     if (m_session)
     {

@@ -22,16 +22,16 @@ namespace eth
 struct PoolSettings
 {
     std::vector<std::shared_ptr<URI>> connections;  // List of connection definitions
-    unsigned getWorkPollInterval = 500;             // Interval (ms) between getwork requests
-    unsigned noWorkTimeout = 180;       // If no new jobs in this number of seconds drop connection
+    unsigned getWorkPollInterval = 10000;           // Interval (ms) between getwork requests
+    unsigned noWorkTimeout = 7200;      // If no new jobs in this number of seconds drop connection
     unsigned noResponseTimeout = 2;     // If no response in this number of seconds drop connection
     unsigned poolFailoverTimeout = 0;   // Return to primary pool after this number of minutes
-    bool reportHashrate = false;        // Whether or not to report hashrate to pool
-    unsigned hashRateInterval = 60;     // Interval in seconds among hashrate submissions
+    bool reportHashrate = true;         // Whether or not to report hashrate to pool
+    unsigned hashRateInterval = 30;     // Interval in seconds among hashrate submissions
     std::string hashRateId =
         h256::random().hex(HexPrefix::Add);  // Unique identifier for HashRate submission
-    unsigned connectionMaxRetries = 3;  // Max number of connection retries
-    unsigned delayBeforeRetry = 0;      // Delay seconds before connect retry
+    unsigned connectionMaxRetries = 99;      // Max number of connection retries
+    unsigned delayBeforeRetry = 10;          // Delay seconds before connect retry
     unsigned benchmarkBlock = 0;        // Block number used by SimulateClient to test performances
     std::string sysCallbackPoWStart = "";  // system command to call when PoW start
     std::string sysCallbackPoWEnd = "";    // system command to call when PoW end

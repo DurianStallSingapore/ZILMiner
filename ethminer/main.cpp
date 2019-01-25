@@ -1290,7 +1290,7 @@ private:
 
     // -- CLI Interface related params
     unsigned m_cliDisplayInterval =
-        5;  // Display stats/info on cli interface every this number of seconds
+        10;  // Display stats/info on cli interface every this number of seconds
 
     // -- CLI Flow control
     mutex m_climtx;
