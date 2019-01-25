@@ -434,7 +434,7 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                     zilSecsToNextPoW = JPrm.get(Json::Value::ArrayIndex(4), 0).asUInt();
 
                     // check if it's the first work in PoW window
-                    if ((zilPowRuning || zilSecsToNextPoW == 0) && !m_zil_pow_running)
+                    if (zilPowRuning && !m_zil_pow_running)
                     {
                         m_zil_pow_running = true;
                         cnote << "ZIL PoW Window Start";
