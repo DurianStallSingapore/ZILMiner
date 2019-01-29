@@ -463,17 +463,14 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
 
                 // handle sleep time
                 auto sleep_ms = m_farmRecheckPeriod;
-                if (isZILMode() && !zilPowRuning)
-                {
-                    // sleep till next PoW coming
-                    sleep_ms = zilSecsToNextPoW * 1000 * 9 / 10;
-                    sleep_ms = std::max(sleep_ms, m_farmRecheckPeriod);
 
-                    if (sleep_ms > m_farmRecheckPeriod)
+                if (isZILMode() && !zilPowRuning && (zilSecsToNextPoW > 0))
+                {
+                    sleep_ms = std::min(zilSecsToNextPoW * 1000, m_farmRecheckPeriod);
+
+                    bool expected = true;
+                    if (m_zil_pow_running.compare_exchange_strong(expected, false))
                     {
-                        cnote << "ZIL PoW is not running, next round " << zilSecsToNextPoW
-                              << " seconds later.";
-                        cnote << "sleep for " << sleep_ms / 1000.0 << " seconds.";
                         // pause workers
                         if (m_onWorkReceived)
                         {
@@ -481,15 +478,11 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                             m_onWorkReceived(m_current);
                         }
 
-                        bool expected = true;
-                        if (m_zil_pow_running.compare_exchange_strong(expected, false))
+                        cnote << "ZIL PoW Window End";
+                        // call end callback
+                        if (m_onPoWEnd)
                         {
-                            cnote << "ZIL PoW Window End";
-                            // call end callback
-                            if (m_onPoWEnd)
-                            {
-                                m_onPoWEnd();
-                            }
+                            m_onPoWEnd();
                         }
                     }
                 }
