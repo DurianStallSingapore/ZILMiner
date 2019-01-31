@@ -185,6 +185,7 @@ void CUDAMiner::workLoop()
         {
             // Wait for work or 3 seconds (whichever the first)
             const WorkPackage w = work();
+            cnote << "Get work with header " << w.header << w.epoch;
             if (!w || paused())
             {
                 boost::system_time const timeout =
@@ -199,6 +200,7 @@ void CUDAMiner::workLoop()
             {
                 // reset submit count when get a new work
                 m_submitted_count = 0;
+                cnote << "set m_submitted_count to 0";
             }
 
             if ((m_maxSubmitCount >= 0) && (m_submitted_count >= m_maxSubmitCount))
@@ -209,6 +211,7 @@ void CUDAMiner::workLoop()
             // Epoch change ?
             if (current.epoch != w.epoch || m_allocated_memory_dag == 0)
             {
+                cnote << "Current epoch " << current.epoch << ", Init epoch " << w.epoch;
                 if (!initEpoch())
                     break;  // This will simply exit the thread
 
@@ -241,6 +244,7 @@ void CUDAMiner::workLoop()
 
 void CUDAMiner::kick_miner()
 {
+    cnote << __FUNCTION__;
     m_new_work.store(true, std::memory_order_relaxed);
     m_new_work_signal.notify_one();
 }
@@ -318,6 +322,7 @@ void CUDAMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollecti
 void CUDAMiner::search(
     uint8_t const* header, uint64_t target, uint64_t start_nonce, const dev::eth::WorkPackage& w)
 {
+    cnote << "Start to search from nonce " << start_nonce;
     set_header(*reinterpret_cast<hash32_t const*>(header));
     if (m_current_target != target)
     {
@@ -336,17 +341,22 @@ void CUDAMiner::search(
 
         // Run the batch for this stream
         run_ethash_search(m_settings.gridSize, m_settings.blockSize, stream, &buffer, start_nonce, m_settings.parallelHash);
+
+        cnote << "run_ethash_search at " << __FILE__ << ", line " << __LINE__;
     }
 
     // process stream batches until we get new work.
     bool done = false;
 
-
     while (!done)
     {
         // Exit next time around if there's new work awaiting
         bool t = true;
+        cnote << "m_new_work = " << m_new_work << ", done = " << done;
+
         done = m_new_work.compare_exchange_strong(t, false);
+
+        cnote << "m_new_work = " << m_new_work << ", done = " << done;
 
         // Check on every batch if we need to suspend mining
         if (!done)
@@ -359,6 +369,7 @@ void CUDAMiner::search(
             // done if we submitted enghou solutions
             if ((m_maxSubmitCount >= 0) && (m_submitted_count >= m_maxSubmitCount))
             {
+                cnote << "Job already submitted";
                 done = true;
                 break;
             }
@@ -375,6 +386,7 @@ void CUDAMiner::search(
             {
                 m_new_work.store(false, std::memory_order_relaxed);
                 done = true;
+                cnote << "should stop triggered";
             }
 
             // Detect solutions in current stream's solution buffer
@@ -402,6 +414,7 @@ void CUDAMiner::search(
                     Farm::f().submitProof(sol);
                     if ((m_maxSubmitCount >= 0) && (++m_submitted_count >= m_maxSubmitCount))
                     {
+                        cnote << "Job is done";
                         done = true;
                         break;
                     }
@@ -421,10 +434,13 @@ void CUDAMiner::search(
         // Bail out if it's shutdown time
         if (shouldStop())
         {
+            cnote << "shouldStop trigger at " << __FILE__ << ", line " << __LINE__;
             m_new_work.store(false, std::memory_order_relaxed);
             break;
         }
     }
+
+    cnote << "End of search from nonce " << start_nonce;
 
 #ifdef DEV_BUILD
     // Optionally log job switch time

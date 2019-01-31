@@ -22,7 +22,7 @@ HunterGate(
 project(ethminer)
 set(PROJECT_VERSION 0.1.25)
 
-cable_set_build_type(DEFAULT Release CONFIGURATION_TYPES Release RelWithDebInfo)
+cable_set_build_type(DEFAULT Debug CONFIGURATION_TYPES Debug Release RelWithDebInfo)
 
 option(ETHASHCL "Build with OpenCL mining" ON)
 option(ETHASHCUDA "Build with CUDA mining" ON)
