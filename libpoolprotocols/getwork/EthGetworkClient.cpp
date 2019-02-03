@@ -131,6 +131,17 @@ void EthGetworkClient::handle_connect(const boost::system::error_code& ec)
             if (m_onConnected)
                 m_onConnected();
             m_current_tstamp = std::chrono::steady_clock::now();
+            
+            if (isZILMode() && m_onWorkReceived)
+            {
+                // send dummy work to miner to init the DAG
+                WorkPackage initWp;
+                initWp.header = h256(0xDEADBEEF);
+                initWp.seed = h256(0x0000);
+                initWp.boundary = h256();
+                initWp.boundary[0] = 0x0F;
+                m_onWorkReceived(initWp);
+            }
         }
 
         // Retrieve 1st line waiting in the queue and submit
