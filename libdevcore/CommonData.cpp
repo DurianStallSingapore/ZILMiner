@@ -176,8 +176,8 @@ std::string dev::getScaledSize(double _value, double _divisor, int _precision, s
 
 std::string dev::getFormattedHashes(double _hr, ScaleSuffix _suffix, int _precision)
 {
-    static string suffixes[] = {"h", "Kh", "Mh", "Gh"};
-    return dev::getScaledSize(_hr, 1000.0, _precision, suffixes, 4, _suffix);
+    static string suffixes[] = {"h", "Kh", "Mh", "Gh", "Th", "Ph"};
+    return dev::getScaledSize(_hr, 1000.0, _precision, suffixes, 6, _suffix);
 }
 
 std::string dev::getFormattedMemory(double _mem, ScaleSuffix _suffix, int _precision)
