@@ -276,6 +276,7 @@ URI::URI(std::string uri, bool _sim) : m_uri{std::move(uri)}
     else
     {
         m_host = m_hostinfo;
+        m_port = 80;
     }
 
     // Host info must be present and valued

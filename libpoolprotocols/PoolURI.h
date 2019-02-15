@@ -108,7 +108,7 @@ private:
     std::string m_uri;
 
     unsigned short m_stratumMode = 999;  // Initial value 999 means not tested yet
-    unsigned short m_port = 0;
+    unsigned short m_port = 80;
     bool m_stratumModeConfirmed = false;
     bool m_unrecoverable = false;
     bool m_responds = false;
