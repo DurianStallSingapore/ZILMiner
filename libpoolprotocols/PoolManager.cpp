@@ -53,7 +53,10 @@ PoolManager::PoolManager(PoolSettings _settings)
     });
 
     // start other miner if set
-    runSystemCommand(m_Settings.sysCallbackPoWEnd, true);
+    if (m_Settings.callPoWEndAtStartup)
+    {
+        runSystemCommand(m_Settings.sysCallbackPoWEnd, true);
+    }
 
     DEV_BUILD_LOG_PROGRAMFLOW(cnote, "PoolManager::PoolManager() end");
 }

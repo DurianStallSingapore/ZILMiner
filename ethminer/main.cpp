@@ -383,6 +383,7 @@ public:
         app.add_option("--pow-start", m_PoolSettings.sysCallbackPoWStart, "");
         app.add_option("--pow-end", m_PoolSettings.sysCallbackPoWEnd, "");
         app.add_flag("--clear-dag", m_PoolSettings.clearDAGPoWEnd, "");
+        app.add_flag("--pow-end-at-startup", m_PoolSettings.callPoWEndAtStartup, "");
 
         // Exception handling is held at higher level
         app.parse(argc, argv);
