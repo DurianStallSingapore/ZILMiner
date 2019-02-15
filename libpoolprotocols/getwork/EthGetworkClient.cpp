@@ -425,7 +425,8 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 bool zilPowRuning = false;
 
                 newWp.header = h256(JPrm.get(Json::Value::ArrayIndex(0), "").asString());
-                newWp.seed = h256(JPrm.get(Json::Value::ArrayIndex(1), "").asString());
+                std::string strSeed = JPrm.get(Json::Value::ArrayIndex(1), "").asString();
+                newWp.seed = h256(strSeed);
                 newWp.boundary = h256(JPrm.get(Json::Value::ArrayIndex(2), "").asString());
                 if (isZILMode())
                 {
@@ -441,6 +442,19 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                         if (m_onPoWStart)
                         {
                             m_onPoWStart();
+                        }
+
+                        // send dummy work to init DAG
+                        if (m_onWorkReceived)
+                        {
+                            cnote << "Send dummy work to init DAG";
+                            WorkPackage initWp;
+                            m_onWorkReceived(initWp);
+                            initWp.header = h256(0xDEADBEEF);
+                            initWp.seed = strSeed.size() > 0 ? newWp.seed : m_current.seed;
+                            initWp.boundary = h256();
+                            initWp.boundary[0] = 0x0F;
+                            m_onWorkReceived(initWp);
                         }
                     }
                 }
