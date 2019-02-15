@@ -988,17 +988,17 @@ public:
                  << "    This set of options is valid for mining mode independently from" << endl
                  << "    OpenCL or CUDA or Mixed mining mode." << endl
                  << endl
-                 << "    --display-interval  INT[1 .. 1800] Default = 5" << endl
+                 << "    --display-interval  INT[1 .. 1800] Default = 30" << endl
                  << "                        Statistic display interval in seconds" << endl
-                 << "    --farm-recheck      INT[1 .. 99999] Default = 500" << endl
+                 << "    --farm-recheck      INT[1 .. 99999] Default = 10000" << endl
                  << "                        Set polling interval for new work in getWork mode"
                  << endl
                  << "                        Value expressed in milliseconds" << endl
                  << "                        It has no meaning in stratum mode" << endl
-                 << "    --farm-retries      INT[1 .. 99999] Default = 3" << endl
+                 << "    --farm-retries      INT[1 .. 99999] Default = 99" << endl
                  << "                        Set number of reconnection retries to same pool"
                  << endl
-                 << "    --retry-delay       INT[1 .. 999] Default = 0" << endl
+                 << "    --retry-delay       INT[1 .. 999] Default = 10" << endl
                  << "                        Delay in seconds before reconnection retry" << endl
                  << "    --failover-timeout  INT[0 .. ] Default not set" << endl
                  << "                        Sets the number of minutes zilminer can stay" << endl
@@ -1006,7 +1006,7 @@ public:
                  << "                        reconnect to the primary (the first) connection."
                  << endl
                  << "                        before switching to a fail-over connection" << endl
-                 << "    --work-timeout      INT[180 .. 99999] Default = 180" << endl
+                 << "    --work-timeout      INT[180 .. 99999] Default = 14400" << endl
                  << "                        If no new work received from pool after this" << endl
                  << "                        amount of time the connection is dropped" << endl
                  << "                        Value expressed in seconds." << endl
@@ -1014,7 +1014,7 @@ public:
                  << "                        If no response from pool to a stratum message " << endl
                  << "                        after this amount of time the connection is dropped"
                  << endl
-                 << "    --max-submit        INT[0 .. 999] Default = -1" << endl
+                 << "    --max-submit        INT[0 .. 999] Default = 1" << endl
                  << "                        Max submissions allowed for a worker each work "
                  << endl
                  << "    -R,--report-hr      FLAG Notify pool of effective hashing rate" << endl
@@ -1025,7 +1025,7 @@ public:
                  << "                        2 As 1 plus monitor power drain" << endl
                  << "    --exit              FLAG Stop zilminer whenever an error is encountered"
                  << endl
-                 << "    --ergodicity        INT[0 .. 2] Default = 0" << endl
+                 << "    --ergodicity        INT[0 .. 2] Default = 2" << endl
                  << "                        Sets how zilminer chooses the nonces segments to"
                  << endl
                  << "                        search on." << endl
