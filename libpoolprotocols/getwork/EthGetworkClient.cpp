@@ -546,16 +546,6 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
         const unsigned miner_index = _id - 40;
         if (_isSuccess)
         {
-            if (isZILMode())
-            {
-                // try to get new work when success
-                m_getwork_timer.cancel();
-                m_getwork_timer.expires_from_now(boost::posix_time::milliseconds(500));
-                m_getwork_timer.async_wait(
-                    m_io_strand.wrap(boost::bind(&EthGetworkClient::getwork_timer_elapsed, this,
-                        boost::asio::placeholders::error)));
-            }
-
             if (m_onSolutionAccepted)
                 m_onSolutionAccepted(_delay, miner_index, false);
         }
@@ -563,6 +553,15 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
         {
             if (m_onSolutionRejected)
                 m_onSolutionRejected(_delay, miner_index);
+        }
+
+        if (isZILMode())
+        {
+            // try to get new work when submitted
+            m_getwork_timer.cancel();
+            m_getwork_timer.expires_from_now(boost::posix_time::milliseconds(100));
+            m_getwork_timer.async_wait(m_io_strand.wrap(boost::bind(
+                &EthGetworkClient::getwork_timer_elapsed, this, boost::asio::placeholders::error)));
         }
     }
 
