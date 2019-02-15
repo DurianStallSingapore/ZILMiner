@@ -1,6 +1,6 @@
 # zilminer
 
-> Zilliqa miner with OpenCL and CUDA support.
+> Zilliqa miner with OpenCL and CUDA support. It supports both Ubuntu and Windows OS.
 
 **zilminer** is an Ethash GPU mining worker that support Zilliqa's Proof-of-Work process. 
 
@@ -10,13 +10,13 @@ This project is a fork of [ethminer](https://github.com/ethereum-mining/ethminer
 
 * Zilliqa Getwork protocol
 * Dual-Mining support
-* All ethminer features 
+* All ethminer features
 
 
 ## Install
 
 Standalone **executables** for *Linux*, *macOS* and *Windows* are provided in
-the [Releases] section.
+the [**Releases**](https://github.com/DurianStallSingapore/ZILMiner/releases) section.
 Download an archive for your operating system and unpack the content to a place
 accessible from command line. After which, the zilminer will be ready to go.
 
@@ -70,7 +70,7 @@ zilminer -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
 
 example:
 ```sh
-zilminer --pow-start stopAE.bat --pow-end startAE.bat  -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
+zilminer --pow-start stopAE.bat --pow-end startAE.bat -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
 ```
 
 4. [Optional] If your GPU memory is not enough, add arg `--clear-dag` to clear ZIL DAG after ZIL PoW stopped.
