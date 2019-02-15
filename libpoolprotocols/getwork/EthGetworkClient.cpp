@@ -457,6 +457,8 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                             initWp.boundary[0] = 0x0F;
                             m_onWorkReceived(initWp);
                         }
+
+                        m_current_tstamp = std::chrono::steady_clock::now();
                     }
                 }
 
