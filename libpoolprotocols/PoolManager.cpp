@@ -52,7 +52,6 @@ PoolManager::PoolManager(PoolSettings _settings)
         return false;
     });
 
-
     DEV_BUILD_LOG_PROGRAMFLOW(cnote, "PoolManager::PoolManager() end");
 }
 
@@ -226,14 +225,9 @@ void PoolManager::setClientHandlers()
         {
             return;
         }
-        cnote << "[Start] Call system command: " << m_Settings.sysCallbackPoWStart;
-        boost::process::async_system(
-            m_ios,
-            [&](boost::system::error_code error, int i) {
-                cnote << "command exit " << i << " ec " << error;
-            },
-            m_Settings.sysCallbackPoWStart);
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+
+        runSystemCommand(m_Settings.sysCallbackPoWStart, false);
+
         if (Farm::f().paused())
         {
             Farm::f().resume();
@@ -247,18 +241,12 @@ void PoolManager::setClientHandlers()
             std::this_thread::sleep_for(std::chrono::seconds(5));
             Farm::f().clearMinerDAG();
         }
-
         if (m_Settings.sysCallbackPoWEnd.size() == 0)
         {
             return;
         }
-        cnote << "[End] Call system command: " << m_Settings.sysCallbackPoWEnd;
-        boost::process::async_system(
-            m_ios,
-            [&](boost::system::error_code error, int i) {
-                cnote << "command exit " << i << " ec " << error;
-            },
-            m_Settings.sysCallbackPoWEnd);
+
+        runSystemCommand(m_Settings.sysCallbackPoWEnd, true);
     });
 }
 
@@ -597,4 +585,26 @@ unsigned PoolManager::getConnectionSwitches()
 unsigned PoolManager::getEpochChanges()
 {
     return m_epochChanges.load(std::memory_order_relaxed);
+}
+
+void PoolManager::runSystemCommand(std::string command, bool async)
+{
+    if (command.size() == 0)
+    {
+        return;
+    }
+    cnote << "Call system command: " << command;
+
+    if (async)
+    {
+        boost::process::async_system(m_ios,
+            [&](boost::system::error_code error, int i) {
+                cnote << "command exit " << i << " ec " << error;
+            },
+            command);
+    }
+    else
+    {
+        boost::process::system(command);
+    }
 }

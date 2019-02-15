@@ -68,6 +68,8 @@ private:
 
     void setActiveConnectionCommon(unsigned int idx);
 
+    void runSystemCommand(std::string command, bool async = true);
+
     boost::asio::io_context m_ios;
 
     PoolSettings m_Settings;
