@@ -24,7 +24,7 @@ public:
         ETH = 0,
         ZIL = 1
     };
-    EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod);
+    EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod, int poWEndTimeout);
     ~EthGetworkClient();
 
     void connect() override;
@@ -74,6 +74,7 @@ private:
 
     // seconds to trigger a work_timeout (overwritten in constructor)
     int m_worktimeout;
+    int m_powend_timeout;  // seconds to rigger pow end if no work received
     std::chrono::time_point<std::chrono::steady_clock> m_current_tstamp;
 
     unsigned m_solution_submitted_max_id;  // maximum json id we used to send a solution

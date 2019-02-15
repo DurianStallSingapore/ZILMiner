@@ -10,7 +10,7 @@ using namespace eth;
 
 using boost::asio::ip::tcp;
 
-EthGetworkClient::EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod)
+EthGetworkClient::EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod, int poWEndTimeout)
   : PoolClient(),
     m_farmRecheckPeriod(farmRecheckPeriod),
     m_io_strand(g_io_service),
@@ -18,7 +18,8 @@ EthGetworkClient::EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod)
     m_resolver(g_io_service),
     m_endpoints(),
     m_getwork_timer(g_io_service),
-    m_worktimeout(worktimeout)
+    m_worktimeout(worktimeout),
+    m_powend_timeout(poWEndTimeout)
 {
     m_jSwBuilder.settings_["indentation"] = "";
 
@@ -459,6 +460,11 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                     }
                 }
 
+                if (newWp)
+                {
+                    m_current_tstamp = std::chrono::steady_clock::now();
+                }
+
                 newWp.job = newWp.header.hex();
                 if (m_current.header != newWp.header || m_current.boundary != newWp.boundary)
                 {
@@ -478,25 +484,38 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 // handle sleep time
                 auto sleep_ms = m_farmRecheckPeriod;
 
-                if (isZILMode() && !zilPowRuning && (zilSecsToNextPoW > 0))
+                if (isZILMode())
                 {
-                    sleep_ms = std::min(zilSecsToNextPoW * 1000, m_farmRecheckPeriod);
+                    bool pow_end = !zilPowRuning && (zilSecsToNextPoW > 0);
 
-                    bool expected = true;
-                    if (m_zil_pow_running.compare_exchange_strong(expected, false))
+                    if (!pow_end)
                     {
-                        // pause workers
-                        if (m_onWorkReceived)
-                        {
-                            m_current.header = h256();
-                            m_onWorkReceived(m_current);
-                        }
+                        // Check if last work is older than pow end timeout
+                        chrono::seconds _delay = chrono::duration_cast<chrono::seconds>(
+                            chrono::steady_clock::now() - m_current_tstamp);
+                        pow_end = _delay.count() > m_powend_timeout;
+                    }
 
-                        cnote << "ZIL PoW Window End";
-                        // call end callback
-                        if (m_onPoWEnd)
+                    if (pow_end)
+                    {
+                        sleep_ms = std::min(zilSecsToNextPoW * 1000, m_farmRecheckPeriod);
+
+                        bool expected = true;
+                        if (m_zil_pow_running.compare_exchange_strong(expected, false))
                         {
-                            m_onPoWEnd();
+                            // pause workers
+                            if (m_onWorkReceived)
+                            {
+                                m_current.header = h256();
+                                m_onWorkReceived(m_current);
+                            }
+
+                            cnote << "ZIL PoW Window End";
+                            // call end callback
+                            if (m_onPoWEnd)
+                            {
+                                m_onPoWEnd();
+                            }
                         }
                     }
                 }
