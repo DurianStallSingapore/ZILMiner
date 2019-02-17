@@ -75,6 +75,29 @@ zilminer --pow-start stopAE.bat --pow-end startAE.bat -P zil://wallet_address.wo
 
 4. [Optional] If your GPU memory is not enough, add arg `--clear-dag` to clear ZIL DAG after ZIL PoW stopped.
 
+## Dual Mining Scripts:
+
+### Zilminer + GMiner - Beam + ZIL
+
+Write 2 batch files:
+`start_beam.bat` batch file to start beam miner:
+```bat
+taskkill /f /im miner.exe >null
+START cmd /c "miner.exe --algo 150_5 --server beam-us.leafpool.com --port 4444 --ssl 1 --user walletxxx.namexxx"
+```
+
+`stop_beam.bat` batch file to stop beam miner:
+```bat
+taskkill /f /im miner.exe >null
+```
+
+Zilminer:
+```bat
+zilminer.exe --pow-start stop_beam.bat --pow-end start_beam.bat --pow-end-at-startup -P zil://wallet_address.worker_name@proxy.getzil.com:5000/api
+```
+
+If your GPU memory is not enghou for 2 miners, add zilminer arg `--clear-dag`
+
 ## Build
 
 ### Building from source
