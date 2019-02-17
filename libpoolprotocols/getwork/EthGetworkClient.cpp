@@ -506,7 +506,10 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
 
                     if (pow_end)
                     {
-                        sleep_ms = std::min(zilSecsToNextPoW * 1000, m_farmRecheckPeriod);
+                        if (zilSecsToNextPoW > 0)
+                        {
+                            sleep_ms = std::min(zilSecsToNextPoW * 1000, m_farmRecheckPeriod);
+                        }
 
                         bool expected = true;
                         if (m_zil_pow_running.compare_exchange_strong(expected, false))
