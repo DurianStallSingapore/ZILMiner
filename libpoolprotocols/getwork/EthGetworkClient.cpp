@@ -435,8 +435,14 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                     zilPowRuning = JPrm.get(Json::Value::ArrayIndex(3), false).asBool();
                     zilSecsToNextPoW = JPrm.get(Json::Value::ArrayIndex(4), 0).asUInt();
 
+                    if (newWp)
+                    {
+                        m_current_tstamp = std::chrono::steady_clock::now();
+                        m_pow_window_timeout = false;
+                    }
+
                     // check if it's the first work in PoW window
-                    if (zilPowRuning && !m_zil_pow_running)
+                    if (zilPowRuning && !m_pow_window_timeout && !m_zil_pow_running)
                     {
                         m_zil_pow_running = true;
                         cnote << "ZIL PoW Window Start";
@@ -462,11 +468,6 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                     }
                 }
 
-                if (newWp)
-                {
-                    m_current_tstamp = std::chrono::steady_clock::now();
-                }
-
                 newWp.job = newWp.header.hex();
                 if (m_current.header != newWp.header || m_current.boundary != newWp.boundary)
                 {
@@ -490,12 +491,17 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 {
                     bool pow_end = !zilPowRuning && (zilSecsToNextPoW > 0);
 
-                    if (!pow_end)
+                    if (pow_end)
+                    {
+                        m_pow_window_timeout = false;
+                    } 
+                    else
                     {
                         // Check if last work is older than pow end timeout
                         chrono::seconds _delay = chrono::duration_cast<chrono::seconds>(
                             chrono::steady_clock::now() - m_current_tstamp);
-                        pow_end = _delay.count() > m_powend_timeout;
+                        m_pow_window_timeout = _delay.count() > m_powend_timeout;
+                        pow_end = m_pow_window_timeout;
                     }
 
                     if (pow_end)
