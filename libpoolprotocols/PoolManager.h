@@ -38,6 +38,7 @@ struct PoolSettings
     std::string sysCallbackPoWEnd = "";    // system command to call when PoW end
     bool clearDAGPoWEnd = false;           // release GPU memory when PoW end
     bool callPoWEndAtStartup = false;      // call pow-end system command at startup
+    unsigned startPoWEarlier = 1;          // PoW start earlier in this number of seconds
 };
 
 class PoolManager

@@ -10,7 +10,8 @@ using namespace eth;
 
 using boost::asio::ip::tcp;
 
-EthGetworkClient::EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod, int poWEndTimeout)
+EthGetworkClient::EthGetworkClient(
+    int worktimeout, unsigned farmRecheckPeriod, int poWEndTimeout, unsigned poWStartSeconds)
   : PoolClient(),
     m_farmRecheckPeriod(farmRecheckPeriod),
     m_io_strand(g_io_service),
@@ -19,7 +20,8 @@ EthGetworkClient::EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod, 
     m_endpoints(),
     m_getwork_timer(g_io_service),
     m_worktimeout(worktimeout),
-    m_powend_timeout(poWEndTimeout)
+    m_powend_timeout(poWEndTimeout),
+    m_powstart_seconds(poWStartSeconds)
 {
     m_jSwBuilder.settings_["indentation"] = "";
 
@@ -442,7 +444,8 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                     }
 
                     // check if it's the first work in PoW window
-                    if (zilPowRuning && !m_pow_window_timeout && !m_zil_pow_running)
+                    if ((zilPowRuning || zilSecsToNextPoW <= m_powstart_seconds) &&
+                        !m_pow_window_timeout && !m_zil_pow_running)
                     {
                         m_zil_pow_running = true;
                         cnote << "ZIL PoW Window Start";
@@ -489,7 +492,7 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
 
                 if (isZILMode())
                 {
-                    bool pow_end = !zilPowRuning && (zilSecsToNextPoW > 0);
+                    bool pow_end = !zilPowRuning && (zilSecsToNextPoW > m_powstart_seconds);
 
                     if (pow_end)
                     {

@@ -385,6 +385,9 @@ public:
         app.add_flag("--clear-dag", m_PoolSettings.clearDAGPoWEnd, "");
         app.add_flag("--pow-end-at-startup", m_PoolSettings.callPoWEndAtStartup, "");
 
+        app.add_option("--pow-earlier", m_PoolSettings.startPoWEarlier, "", true)
+            ->check(CLI::Range(1, 99999));
+
         // Exception handling is held at higher level
         app.parse(argc, argv);
         if (bhelp)
