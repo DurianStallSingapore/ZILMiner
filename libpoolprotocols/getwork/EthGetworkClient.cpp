@@ -452,7 +452,7 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                         }
 
                         // send dummy work to init DAG
-                        if (m_onWorkReceived)
+                        if (!newWp && m_onWorkReceived)
                         {
                             cnote << "Send dummy work to init DAG";
                             WorkPackage initWp;
