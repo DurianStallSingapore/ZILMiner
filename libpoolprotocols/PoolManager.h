@@ -27,7 +27,7 @@ struct PoolSettings
     unsigned poWEndTimeout = 180;        // If no new jobs in this number of seconds, set PoW end
     unsigned noResponseTimeout = 2;     // If no response in this number of seconds drop connection
     unsigned poolFailoverTimeout = 0;   // Return to primary pool after this number of minutes
-    bool reportHashrate = true;         // Whether or not to report hashrate to pool
+    bool reportHashrate = false;        // Whether or not to report hashrate to pool
     unsigned hashRateInterval = 30;     // Interval in seconds among hashrate submissions
     std::string hashRateId =
         h256::random().hex(HexPrefix::Add);  // Unique identifier for HashRate submission

@@ -270,6 +270,7 @@ public:
             ->check(CLI::Range(0, 999));
 
         app.add_flag("-R,--report-hashrate,--report-hr", m_PoolSettings.reportHashrate, "");
+        m_PoolSettings.reportHashrate = true;
 
         app.add_option("--display-interval", m_cliDisplayInterval, "", true)
             ->check(CLI::Range(1, 1800));
