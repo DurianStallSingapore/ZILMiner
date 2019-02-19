@@ -675,6 +675,12 @@ void EthGetworkClient::submitSolution(const Solution& solution)
         }
     }
 
+    if (solution.work.header == h256(0xDEADBEEF))
+    {
+        // do not submit dummy work
+        return;
+    }
+
     if (m_session)
     {
         Json::Value jReq;
