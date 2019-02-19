@@ -250,7 +250,8 @@ public:
 
         app.add_option("-v,--verbosity", g_logOptions, "", true)->check(CLI::Range(LOG_NEXT - 1));
 
-        app.add_option("--farm-recheck", m_PoolSettings.getWorkPollInterval, "", true)->check(CLI::Range(1, 99999));
+        app.add_option("--farm-recheck", m_PoolSettings.getWorkPollInterval, "", true)
+            ->check(CLI::Range(1000, 99999));
 
         app.add_option("--farm-retries", m_PoolSettings.connectionMaxRetries, "", true)->check(CLI::Range(0, 99999));
 
