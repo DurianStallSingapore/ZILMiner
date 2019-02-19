@@ -192,7 +192,7 @@ void EthGetworkClient::handle_connect(const boost::system::error_code& ec)
             // This endpoint does not respond
             // Pop it and retry
             cwarn << "Error connecting to " << m_conn->Host() << ":" << toString(m_conn->Port())
-                  << " : " << ec.message();
+                  << " : " << ec;
             m_endpoints.pop();
             begin_connect();
         }
@@ -214,7 +214,7 @@ void EthGetworkClient::handle_write(const boost::system::error_code& ec)
         if (ec != boost::asio::error::operation_aborted)
         {
             cwarn << "Error writing to " << m_conn->Host() << ":" << toString(m_conn->Port())
-                  << " : " << ec.message();
+                  << " : " << ec;
             m_endpoints.pop();
             begin_connect();
         }
@@ -344,7 +344,7 @@ void EthGetworkClient::handle_read(
         {
             cwarn << "Error reading from :" << m_conn->Host() << ":" << toString(m_conn->Port())
                   << " : "
-                  << ec.message();
+                  << ec;
             disconnect();
         }
        
@@ -368,7 +368,7 @@ void EthGetworkClient::handle_resolve(
     }
     else
     {
-        cwarn << "Could not resolve host " << m_conn->Host() << ", " << ec.message();
+        cwarn << "Could not resolve host " << m_conn->Host() << ", " << ec;
         disconnect();
     }
 }
