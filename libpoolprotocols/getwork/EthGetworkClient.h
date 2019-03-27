@@ -52,6 +52,7 @@ private:
     void send(std::string const& sReq);
     void getwork_timer_elapsed(const boost::system::error_code& ec);
     void connect_timer_elapsed(const boost::system::error_code& ec);
+    void stop_work();
 
     WorkPackage m_current;
 

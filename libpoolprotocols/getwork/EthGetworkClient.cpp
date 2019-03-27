@@ -469,11 +469,10 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                         {
                             cnote << "Send dummy work to init DAG";
                             WorkPackage initWp;
-                            m_onWorkReceived(initWp);
                             initWp.header = h256(0xDEADBEEF);
                             initWp.seed = strSeed.size() > 0 ? newWp.seed : m_current.seed;
                             initWp.boundary = h256();
-                            initWp.boundary[0] = 0x0F;
+                            initWp.boundary[3] = 0x04;
                             m_onWorkReceived(initWp);
                         }
 
@@ -528,11 +527,7 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                         if (m_zil_pow_running.compare_exchange_strong(expected, false))
                         {
                             // pause workers
-                            if (m_onWorkReceived)
-                            {
-                                m_current.header = h256();
-                                m_onWorkReceived(m_current);
-                            }
+                            stop_work();
 
                             cnote << "ZIL PoW Window End";
                             // call end callback
@@ -676,17 +671,12 @@ void EthGetworkClient::submitSolution(const Solution& solution)
 {
     if (isZILMode() && !m_zil_pow_running)
     {
-        // send dummy work to farm to stop current work
-        if (m_onWorkReceived)
-        {
-            WorkPackage pauseWP = solution.work;
-            pauseWP.header = h256();
-            m_onWorkReceived(pauseWP);
-        }
+        stop_work();
     }
 
     if (solution.work.header == h256(0xDEADBEEF))
     {
+        stop_work();
         // do not submit dummy work
         return;
     }
@@ -747,5 +737,15 @@ void EthGetworkClient::connect_timer_elapsed(const boost::system::error_code& ec
         m_socket.close();
         m_endpoints.pop();
         disconnect();
+    }
+}
+
+void EthGetworkClient::stop_work()
+{
+    if (m_onWorkReceived)
+    {
+        // send dummy work to farm to stop current work
+        m_current.header = h256();
+        m_onWorkReceived(m_current);
     }
 }
