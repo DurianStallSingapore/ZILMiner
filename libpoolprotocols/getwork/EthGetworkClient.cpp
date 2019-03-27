@@ -10,6 +10,7 @@ using namespace eth;
 
 using boost::asio::ip::tcp;
 
+
 EthGetworkClient::EthGetworkClient(
     int worktimeout, unsigned farmRecheckPeriod, int poWEndTimeout, unsigned poWStartSeconds)
   : PoolClient(),
@@ -19,6 +20,7 @@ EthGetworkClient::EthGetworkClient(
     m_resolver(g_io_service),
     m_endpoints(),
     m_getwork_timer(g_io_service),
+    m_connect_timer(g_io_service),
     m_worktimeout(worktimeout),
     m_powend_timeout(poWEndTimeout),
     m_powstart_seconds(poWStartSeconds)
@@ -48,7 +50,8 @@ void EthGetworkClient::connect()
 
     // Reset status flags
     m_getwork_timer.cancel();
-    
+    m_connect_timer.cancel();
+
     // Initialize a new queue of end points
     m_endpoints = std::queue<boost::asio::ip::basic_endpoint<boost::asio::ip::tcp>>();
     m_endpoint = boost::asio::ip::basic_endpoint<boost::asio::ip::tcp>();
@@ -89,6 +92,7 @@ void EthGetworkClient::disconnect()
     m_connecting.store(false, std::memory_order_relaxed);
     m_txPending.store(false, std::memory_order_relaxed);
     m_getwork_timer.cancel();
+    m_connect_timer.cancel();
 
     m_txQueue.consume_all([](std::string* l) { delete l; });
     m_request.consume(m_request.capacity());
@@ -105,6 +109,11 @@ void EthGetworkClient::begin_connect()
         // Pick the first endpoint in list.
         // Eventually endpoints get discarded on connection errors
         m_endpoint = m_endpoints.front();
+
+        m_connect_timer.expires_from_now(boost::posix_time::seconds(10));
+        m_connect_timer.async_wait(m_io_strand.wrap(boost::bind(
+            &EthGetworkClient::connect_timer_elapsed, this, boost::asio::placeholders::error)));
+
         m_socket.async_connect(
             m_endpoint, m_io_strand.wrap(boost::bind(&EthGetworkClient::handle_connect, this, _1)));
     }
@@ -119,6 +128,7 @@ void EthGetworkClient::handle_connect(const boost::system::error_code& ec)
 {
     if (!ec && m_socket.is_open())
     {
+        m_connect_timer.cancel();
 
         // If in "connecting" phase raise the proper event
         if (m_connecting.load(std::memory_order_relaxed))
@@ -726,5 +736,16 @@ void EthGetworkClient::getwork_timer_elapsed(const boost::system::error_code& ec
             send(m_jsonGetWork);
         }
 
+    }
+}
+
+void EthGetworkClient::connect_timer_elapsed(const boost::system::error_code& ec)
+{
+    if (ec != boost::asio::error::operation_aborted)
+    {
+        cwarn << "Connect Timeout " << ec;
+        m_socket.close();
+        m_endpoints.pop();
+        disconnect();
     }
 }
