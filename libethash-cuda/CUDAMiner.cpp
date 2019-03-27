@@ -146,12 +146,13 @@ bool CUDAMiner::initEpoch_internal()
         ethash_generate_dag(
             m_epochContext.dagSize, m_settings.gridSize, m_settings.blockSize, m_streams[0]);
 
-        cudalog << "Generated DAG + Light in "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(
-                       std::chrono::steady_clock::now() - startInit)
-                       .count()
-                << " ms. "
-                << dev::getFormattedMemory((double)(m_deviceDescriptor.totalMemory - RequiredMemory))
+        auto dag_duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - startInit)
+                                .count();
+
+        cudalog << "Generated DAG + Light in " << std::to_string(dag_duration) << " ms. "
+                << dev::getFormattedMemory(
+                       (double)(m_deviceDescriptor.totalMemory - RequiredMemory))
                 << " left.";
 
         retVar = true;
