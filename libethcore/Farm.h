@@ -56,7 +56,7 @@ struct FarmSettings
     unsigned ergodicity = 2;   // 0=default, 1=per session, 2=per job
     unsigned tempStart = 40;   // Temperature threshold to restart mining (if paused)
     unsigned tempStop = 0;     // Temperature threshold to pause mining (overheating)
-    int maxSubmitCount = 1;    // Max submissions allowed for a worker each work
+    int maxSubmitCount = 999;    // Max submissions allowed for a worker each work
 };
 
 /**
