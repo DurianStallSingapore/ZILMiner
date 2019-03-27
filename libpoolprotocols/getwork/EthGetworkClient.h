@@ -79,7 +79,7 @@ private:
 
     // seconds to trigger a work_timeout (overwritten in constructor)
     int m_worktimeout;
-    int m_powend_timeout;  // seconds to rigger pow end if no work received
+    int m_powend_timeout;  // seconds to trigger pow end if no work received
     std::chrono::time_point<std::chrono::steady_clock> m_current_tstamp;
     std::atomic<bool> m_pow_window_timeout = {false};
 

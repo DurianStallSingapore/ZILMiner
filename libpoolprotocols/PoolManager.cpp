@@ -54,7 +54,7 @@ PoolManager::PoolManager(PoolSettings _settings)
 
     if (m_Settings.clearDAGPoWEnd && m_Settings.startPoWEarlier == 1)
     {
-        m_Settings.startPoWEarlier = 90;
+        m_Settings.startPoWEarlier = 60;
     }
 
     // start other miner if set
@@ -238,6 +238,12 @@ void PoolManager::setClientHandlers()
         }
 
         runSystemCommand(m_Settings.sysCallbackPoWStart, false);
+
+        if (!Farm::f().isMining())
+        {
+            cnote << "Spinning up miners...";
+            Farm::f().start();
+        }
 
         if (Farm::f().paused())
         {
