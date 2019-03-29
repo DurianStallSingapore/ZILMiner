@@ -110,6 +110,7 @@ void EthGetworkClient::begin_connect()
         // Eventually endpoints get discarded on connection errors
         m_endpoint = m_endpoints.front();
 
+        m_connect_timer.cancel();
         m_connect_timer.expires_from_now(boost::posix_time::seconds(10));
         m_connect_timer.async_wait(m_io_strand.wrap(boost::bind(
             &EthGetworkClient::connect_timer_elapsed, this, boost::asio::placeholders::error)));
@@ -128,8 +129,6 @@ void EthGetworkClient::handle_connect(const boost::system::error_code& ec)
 {
     if (!ec && m_socket.is_open())
     {
-        m_connect_timer.cancel();
-
         // If in "connecting" phase raise the proper event
         if (m_connecting.load(std::memory_order_relaxed))
         {
@@ -236,6 +235,8 @@ void EthGetworkClient::handle_read(
 {
     if (!ec || ec == boost::asio::error::eof)
     {
+        m_connect_timer.cancel();
+
         // Close socket
         if (m_socket.is_open())
             m_socket.close();
