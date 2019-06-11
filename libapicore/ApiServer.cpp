@@ -636,7 +636,7 @@ void ApiConnection::processRequest(Json::Value& jRequest, Json::Value& jResponse
             {
                 try
                 {
-                    nonce = std::stoul(nonceHex, nullptr, 16);
+                    nonce = std::stoull(nonceHex, nullptr, 16);
                 }
                 catch (const std::exception&)
                 {
