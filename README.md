@@ -2,15 +2,15 @@
 
 > Zilliqa miner with OpenCL and CUDA support. It supports both Ubuntu and Windows OS.
 
-**zilminer** is an Ethash GPU mining worker that support Zilliqa's Proof-of-Work process. 
+**zilminer** is an Ethash GPU mining software that supports the [Zilliqa](https://github.com/Zilliqa) Proof-of-Work process. 
 
-This project is a fork of [ethminer](https://github.com/ethereum-mining/ethminer). Please do see [ethminer README](ethminer.README.md) for more details.
+This project is a fork of [ethminer](https://github.com/ethereum-mining/ethminer). Please do see [ethminer README](ethminer.README.md) for more details of the implementation.
 
 ## Features
 
 * Zilliqa Getwork protocol
 * Dual-Mining support
-* All ethminer features
+* All current ethminer features
 
 
 ## Install
@@ -18,12 +18,12 @@ This project is a fork of [ethminer](https://github.com/ethereum-mining/ethminer
 Standalone **executables** for *Linux*, *macOS* and *Windows* are provided in
 the [**Releases**](https://github.com/DurianStallSingapore/ZILMiner/releases) section.
 Download an archive for your operating system and unpack the content to a place
-accessible from command line. After which, the zilminer will be ready to go.
+accessible from command line. After which, zilminer will be ready to go.
 
 
 ## Usage
 
-The **zilminer** is a command line program. This means you will have to launch it either
+**zilminer** is a command line program. This means you will have to launch it either
 from a Windows command prompt or Linux Bash console. You can also create shortcuts to
 predefined commands using a Linux Bash script or Windows batch/cmd file.
 For the full list of available commands, please enter the following:
@@ -35,9 +35,9 @@ zilminer --help
 ## Settings on Zilliqa Node
 1. Setup Zilliqa Node by following the [Zilliqa Mining Guide](https://github.com/Zilliqa/Zilliqa/wiki/Mining)
 2. Change the `constants.xml` for the following parameter:
-    * Set `GETWORK_SERVER_MINE` to `true`.
-    * Set `GETWORK_SERVER_PORT` to the port you will be using to GetWork. (default is `4202`)
-    * Set the other mining parameters to `false`:
+    - Set `GETWORK_SERVER_MINE` to `true`
+    - Set `GETWORK_SERVER_PORT` to the port you will be using to GetWork (default is `4202`)
+    - Set the other mining parameters to `false`:
        ```
        <CUDA_GPU_MINE>false</CUDA_GPU_MINE>
        <FULL_DATASET_MINE>false</FULL_DATASET_MINE>
@@ -47,6 +47,7 @@ zilminer --help
 3. Launch your node and find out your IP address with the following command:
     ```
     curl https://ipinfo.io/ip
+    ./launch_docker.sh
     ```
 
 ## Settings on zilminer client
@@ -55,48 +56,49 @@ Key in the following command in your command prompt:
 ```sh
 zilminer -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
 ```
-> Please change the *wallet_address*, *worker_name*, *zil_node_ip*, and *get_work_port* accodingly.
+> Please change the *wallet_address*, *worker_name*, *zil_node_ip*, and *get_work_port* accordingly.
 
-* For `wallet_address`: You can use the [Zilliqa Wallet](https://wallet.zilliqa.com/) to create a new keypair and a Zilliqa address.
-* For `worker_name` You can key in any abitrary worker name you desire.
-* For `zil_node_ip`: Please key in the IP address of the Zilliqa node.
-* For `get_work_port`: Please key in the port used in `GETWORK_SERVER_PORT`. Default is `4202`.
+- For `wallet_address`: You can use the [Moonlet](https://moonlet.xyz/) to create a new keypair and a Zilliqa address
+- For `worker_name` You can key in any abitrary worker name you desire
+- For `zil_node_ip`: Please key in the IP address of the Zilliqa node
+- For `get_work_port`: Please key in the port used in `GETWORK_SERVER_PORT`. Default is `4202`
 
 ## Dual Mining
 
-1. Write 2 scripts yourself to start/stop other coin's miner. 
-2. Add arg `--pow-start` to stop other miner before ZIL PoW starting.
-3. Add arg `--pow-end` to start other miner after ZIL PoW stopped.
+1. Create 2 `bat` scripts yourself to start/stop other coin's miner
+2. Add arg `--pow-start` to stop the other miner before ZIL PoW process starts
+3. Add arg `--pow-end` to start the other miner after ZIL PoW process stops
 
-example:
-```sh
-zilminer --pow-start stopAE.bat --pow-end startAE.bat -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
-```
+   Example:
+   ```sh
+   zilminer --pow-start stopAE.bat --pow-end startAE.bat -P zil://wallet_address.worker_name@zil_node_ip:get_work_port
+   ```
 
-4. [Optional] If your GPU memory is not enough, add arg `--clear-dag` to clear ZIL DAG after ZIL PoW stopped.
+4. **(Optional)** If your GPU's memory is insufficient, add the arg `--clear-dag` to clear Zilliqa's DAG after ZIL PoW has stopped.
 
 ## Dual Mining Scripts:
 
-### Zilminer + GMiner - Beam + ZIL
+### Zilminer + GMiner
 
-Write 2 batch files:
-`start_beam.bat` batch file to start beam miner:
-```bat
-taskkill /f /im miner.exe >null
-START cmd /c "miner.exe --algo 150_5 --server beam-us.leafpool.com --port 4444 --ssl 1 --user walletxxx.namexxx"
-```
+Here is an example of how to create the 2 batch files necessary for dual mining BEAM and ZIL:
 
-`stop_beam.bat` batch file to stop beam miner:
-```bat
-taskkill /f /im miner.exe >null
-```
+- To create the `start_beam.bat` batch file that is needed to start the BEAM miner, do the following:
+   ```bat
+   taskkill /f /im miner.exe >null
+   START cmd /c "miner.exe --algo 150_5 --server beam-us.leafpool.com --port 4444 --ssl 1 --user walletxxx.namexxx"
+   ```
 
-Zilminer:
+- To create the `stop_beam.bat` batch file that is needed to stop the BEAM miner, do the following:
+   ```bat
+   taskkill /f /im miner.exe >null
+   ```
+
+Then, run both `bat` scripts by following the example command below:
 ```bat
 zilminer.exe --pow-start stop_beam.bat --pow-end start_beam.bat --pow-end-at-startup -P zil://wallet_address.worker_name@proxy.getzil.com:5000/api
 ```
 
-If your GPU memory is not enghou for 2 miners, add zilminer arg `--clear-dag`
+If your GPU's memory is not sufficient for these 2 miners to run concurrently, add the arg `--clear-dag` to the command above.
 
 ## Build
 
