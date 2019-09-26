@@ -75,9 +75,14 @@ sudo apt-get install mesa-common-dev
     **Note:** On Windows, it's possible to have issues with VS 2017 default compilers, due to CUDA expecting a specific toolset version; in that case, use the VS 2017 installer to get the VS 2015 compilers and pass the `-T v140` option:
 
     ```shell
+    # If you use VS 2015
+    cmake .. -G "Visual Studio 14 2015 Win64"
+    # or if you use VS 2017
     cmake .. -G "Visual Studio 15 2017 Win64"
     # or this if you have build errors in the CUDA step
     cmake .. -G "Visual Studio 15 2017 Win64" -T v140
+    # or if you use VS 2019
+    cmake .. -G "Visual Studio 16 2019 Win64"
     ```
 
 4. Build the project using [CMake Build Tool Mode]. This is a portable variant of `make`.
